@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import HttpResponse, Http404
 from .models import Item
+from django.core.exceptions import ObjectDoesNotExist
 
 user_data = {
     "surname": "Иванов",
@@ -35,10 +36,12 @@ def db_list(request):
     return render(request, 'DB_items.html', context)
 
 def item(request, id):
-    items = Item.objects.all()
     context = {}
-    for item in items:
-        if item["id"] == id:
-            context["item"] = item
-            return render(request, 'item.html', context)
-    raise Http404
+    try:
+        item = Item.objects.get(id=id)
+    except ObjectDoesNotExist:
+        raise Http404
+    
+    context['item'] = item
+    return render(request, 'item.html', context)
+    
